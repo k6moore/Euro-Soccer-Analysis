@@ -1,0 +1,33 @@
+WITH team_data AS (
+SELECT * 
+FROM Team_Attributes ta
+JOIN Team t
+ON ta.team_api_id = t.team_api_id),
+
+	teamdate_data AS (
+SELECT
+*,
+lead(team_api_id) OVER (PARTITION BY team_api_id ORDER BY "date") AS lead_team_api_id,
+lead("date",1,"2016-05-25 00:00:00") OVER (PARTITION BY team_api_id ORDER BY "date") AS end_date
+FROM team_data)
+
+
+SELECT m.match_api_id, 
+m."date",
+m.country_id,
+m.league_id,
+m.season,
+m.home_team_api_id,
+m.away_team_api_id,
+m.home_team_goal,
+m.away_team_goal,
+td.team_api_id,
+td."date" start_date,
+td.end_date
+FROM Match m
+JOIN teamdate_data td
+ON td.team_api_id = m.home_team_api_id
+OR td.team_api_id = m.away_team_api_id
+WHERE m."date"  BETWEEN td."date" AND td.end_date
+ORDER BY td.team_api_id, td.end_date DESC;
+
