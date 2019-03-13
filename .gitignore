@@ -1,3 +1,4 @@
 *.sqlite
 *.sqbpro
 *.db
+*.csv
